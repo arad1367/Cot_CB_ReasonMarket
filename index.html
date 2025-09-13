@@ -18,8 +18,8 @@
         --border: #e5e7eb;
         --shadow: 0 10px 20px rgba(0, 0, 0, 0.07), 0 6px 6px rgba(0, 0, 0, 0.05);
 
-        /* NEW: consent text color variable */
-        --consent-yellow: #b58900; /* accessible yellow/brown for good contrast on light */
+        /* Consent text color */
+        --consent-yellow: #b58900; /* good contrast on light */
       }
       @media (prefers-color-scheme: dark) {
         :root {
@@ -35,7 +35,7 @@
           --shadow: 0 10px 20px rgba(0, 0, 0, 0.5),
             0 6px 6px rgba(0, 0, 0, 0.35);
 
-          /* Dark-mode consent yellow tuned for dark bg */
+          /* Dark-mode consent yellow */
           --consent-yellow: #f2c94c;
         }
       }
@@ -95,29 +95,34 @@
         justify-content: flex-end;
         margin-top: 20px;
       }
-
-      /* UPDATED: Bigger, centered Next button on Page 1 */
+      /* Centered, bigger Next button */
       .actions.centered {
-        justify-content: center; /* center horizontally */
+        justify-content: center;
       }
-      #next1 {
+      button,
+      .button {
         border: none;
         background: var(--primary);
         color: white;
-        /* Bigger size */
+        padding: 12px 18px;
+        border-radius: 10px;
+        font-size: 0.98rem;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+        transition: transform 0.02s ease-in-out, background 0.2s ease;
+      }
+      #next1 {
         padding: 16px 28px;
         border-radius: 12px;
         font-size: 1.05rem;
-        cursor: pointer;
+        min-width: 200px;
         box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
-        transition: transform 0.02s ease-in-out, background 0.2s ease;
-        min-width: 200px; /* makes it look substantial */
       }
-      #next1:hover:not(:disabled) {
+      button:hover:not(:disabled) {
         background: var(--primary-600);
         transform: translateY(-1px);
       }
-      #next1:disabled {
+      button:disabled {
         background: #9aa7c2;
         cursor: not-allowed;
         box-shadow: none;
@@ -134,8 +139,7 @@
         transform: scale(1.2);
         accent-color: var(--primary);
       }
-
-      /* NEW: Consent text in yellow for readability */
+      /* Consent text in yellow */
       .consent-text {
         color: var(--consent-yellow);
       }
@@ -325,8 +329,6 @@
 
         <div class="card" style="margin-top: 18px">
           <h3>Consent to Participate</h3>
-
-          <!-- UPDATED: Consent text wrapped with .consent-text -->
           <div class="consent-text">
             <p>
               Although the study will not benefit you directly, we hope the
@@ -364,7 +366,6 @@
             >
           </div>
 
-          <!-- UPDATED: center the Next button and make it bigger via CSS above -->
           <div class="actions centered">
             <button id="next1" disabled>Next</button>
           </div>
@@ -446,6 +447,7 @@
       <div class="footer">Thank you for contributing to our research.</div>
     </div>
 
+    <!-- Time-up dialog -->
     <div
       id="timeDialog"
       class="dialog"
@@ -467,19 +469,18 @@
 
     <script>
       // Configuration
-      const REASONING_LABEL = "CoT";
+      const REASONING_LABEL = "CoT"; // label used in form prefill
       const BASED_LABEL = "Based";
       const REASONING_URL = "https://www.gradio.app/guides/quickstart";
       const BASED_URL =
         "https://huggingface.co/spaces/arad1367/Base-Model-Qwen2.5-3B";
       const GOOGLE_FORM_BASE =
         "https://docs.google.com/forms/d/e/1FAIpQLSf1yQafLACRb29ziTzhq17QQgSo8wlKvrcn9f3c65TmZPCXOw/viewform";
-      const GOOGLE_FORM_ENTRY_KEY = "entry.1755206288";
+      const GOOGLE_FORM_ENTRY_KEY = "entry.1755206288"; // Bot version short-answer field
 
       const SPLASH_SECONDS = 5;
 
-      // TIMER THRESHOLDS (CHANGE THESE FOR TESTING)
-      // Default: 5 minutes (notice) and 6 minutes (redirect)
+      // Timers (adjust for testing if needed)
       const NOTICE_AT_SECONDS = 1 * 60; // show popup at 05:00
       const REDIRECT_AT_SECONDS = 2 * 60; // auto-redirect at 06:00
 
@@ -525,16 +526,10 @@
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
-      function restoreConsent() {
-        const saved = localStorage.getItem(LS_CONSENT);
-        if (saved === "true") {
-          consentCb.checked = true;
-          next1Btn.disabled = false;
-        }
-      }
       consentCb.addEventListener("change", () => {
         const ok = consentCb.checked;
         next1Btn.disabled = !ok;
+        // We still save consent during a run; but we clear it on refresh (init reset below).
         localStorage.setItem(LS_CONSENT, ok ? "true" : "false");
       });
       next1Btn.addEventListener("click", () => {
@@ -656,34 +651,25 @@
         show(page3);
       }
 
+      // INIT: Always start at Page 1 on refresh (clear persisted state)
       (function init() {
-        restoreConsent();
+        // Clear any stored state so a hard refresh starts from Page 1
+        localStorage.removeItem(LS_CONSENT);
+        localStorage.removeItem(LS_ASSIGNED);
+        localStorage.removeItem(LS_STARTED_AT);
 
-        const consentGiven = localStorage.getItem(LS_CONSENT) === "true";
-        if (!consentGiven) {
-          setStep(0);
-          show(page1);
-          return;
+        // Ensure UI is reset
+        noticeShown = false;
+        redirectScheduled = false;
+        if (tickInterval) {
+          clearInterval(tickInterval);
+          tickInterval = null;
         }
-        const assigned = localStorage.getItem(LS_ASSIGNED);
-        const startedAt = localStorage.getItem(LS_STARTED_AT);
+        consentCb.checked = false;
+        next1Btn.disabled = true;
 
-        if (assigned && startedAt) {
-          setStep(1);
-          show(page2);
-          splash.classList.add("hidden");
-          chatArea.classList.remove("hidden");
-          assignedLabel.textContent =
-            assigned === REASONING_LABEL
-              ? "CoT (reasoning) chatbot"
-              : "Based (no reasoning) chatbot";
-          assignedTag.classList.remove("hidden");
-          chatbotFrame.src =
-            assigned === REASONING_LABEL ? REASONING_URL : BASED_URL;
-          startTimerIfNeeded();
-        } else {
-          goToPage2();
-        }
+        setStep(0);
+        show(page1);
       })();
     </script>
   </body>
