@@ -234,12 +234,12 @@
           </div>
         </div>
 
-        <!-- NEW: chatbot fallback link -->
-        <div id="chatbotFallback" class="warning hidden">
-          If the chatbot does not load, <a id="chatbotDirectLink" href="#" target="_blank" rel="noopener">open the chatbot in a new tab</a>.
+        <!-- Always-visible chatbot fallback link -->
+        <div id="chatbotFallback" class="warning" style="margin-bottom:10px;">
+          If the chatbot doesn’t load, <a id="chatbotDirectLink" href="#" target="_blank" rel="noopener">open the chatbot in a new tab</a>.
         </div>
 
-        <div style="margin-top:14px;">
+        <div style="margin-top:8px;">
           <iframe id="chatbotFrame" title="Chatbot"></iframe>
         </div>
 
@@ -286,7 +286,7 @@
     const SPLASH_SECONDS = 5;
 
     // Timers
-    const NOTICE_AT_SECONDS = 1 * 60;   // 05:00
+    const NOTICE_AT_SECONDS = 60;   // 05:00
     const REDIRECT_AT_SECONDS = 30; // 06:00
 
     // Elements
@@ -428,25 +428,42 @@
         : 'Based (no reasoning) chatbot';
       assignedTag.classList.remove("hidden");
 
-      // Update fallback link to match assigned bot
+      // Update fallback link and show it immediately
       chatbotDirectLink.href = url;
+      chatbotFallback.classList.remove("hidden");
 
-      // Try to load the iframe; show fallback if it fails or times out
+      // Attempt to load the iframe
       chatbotFrame.src = url;
 
-      // If iframe can't be embedded, show fallback after a short timeout (e.g., 1500 ms)
-      const fallbackTimeout = setTimeout(() => {
-        chatbotFallback.classList.remove("hidden");
-      }, 1500);
+      // Best-effort hide fallback only if we can confirm the iframe is actually rendering content
+      let confirmedLoaded = false;
 
-      // If it loads, keep fallback hidden; in many blocked cases, onload won't fire, so the timeout reveals the link.
-      chatbotFrame.onload = () => {
-        clearTimeout(fallbackTimeout);
-        // Some sites render a blank iframe when blocked; we still keep the fallback visible logic based on timeout mostly.
+      const confirmLoaded = () => {
+        confirmedLoaded = true;
+        chatbotFallback.classList.add("hidden");
       };
+
+      // onload may fire even for blocked content, but often it won't; still try:
+      chatbotFrame.onload = () => {
+        // Defer a tick to allow rendering, then try to probe. Cross-origin may block access.
+        setTimeout(() => {
+          try {
+            const doc = chatbotFrame.contentDocument || chatbotFrame.contentWindow?.document;
+            // If we can read and there’s some body content, consider it loaded.
+            if (doc && doc.body && doc.body.innerHTML.trim().length > 0) {
+              confirmLoaded();
+            } else {
+              // Keep fallback visible if empty
+            }
+          } catch (e) {
+            // Cross-origin; cannot inspect. Some sites still render fine.
+            // Conservatively keep fallback visible for user choice.
+          }
+        }, 200);
+      };
+
       chatbotFrame.onerror = () => {
-        clearTimeout(fallbackTimeout);
-        chatbotFallback.classList.remove("hidden");
+        // Keep fallback visible; nothing else to do.
       };
 
       splash.classList.add("hidden");
