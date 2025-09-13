@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Sustainable Consumer Behavior Study</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <style>
+      :root {
+        --bg: #ffffff;
+        --fg: #111827;
+        --muted: #6b7280;
+        --primary: #2563eb;
+        --primary-600: #1d4ed8;
+        --success: #059669;
+        --warning: #b45309;
+        --card: #f9fafb;
+        --border: #e5e7eb;
+        --shadow: 0 10px 20px rgba(0, 0, 0, 0.07), 0 6px 6px rgba(0, 0, 0, 0.05);
+
+        /* NEW: consent text color variable */
+        --consent-yellow: #b58900; /* accessible yellow/brown for good contrast on light */
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0b0f14;
+          --fg: #e5e7eb;
+          --muted: #9ca3af;
+          --primary: #60a5fa;
+          --primary-600: #3b82f6;
+          --success: #34d399;
+          --warning: #f59e0b;
+          --card: #0f1720;
+          --border: #1f2937;
+          --shadow: 0 10px 20px rgba(0, 0, 0, 0.5),
+            0 6px 6px rgba(0, 0, 0, 0.35);
+
+          /* Dark-mode consent yellow tuned for dark bg */
+          --consent-yellow: #f2c94c;
+        }
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+          Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        background: var(--bg);
+        color: var(--fg);
+        line-height: 1.55;
+      }
+      .container {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+      header {
+        padding: 16px 0 8px;
+      }
+      h1,
+      h2,
+      h3 {
+        margin: 0.4em 0 0.3em;
+        line-height: 1.2;
+      }
+      h1 {
+        font-size: 1.75rem;
+        letter-spacing: -0.01em;
+      }
+      h2 {
+        font-size: 1.25rem;
+        color: var(--muted);
+        font-weight: 500;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        box-shadow: var(--shadow);
+        padding: 24px;
+        margin-top: 20px;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      ul {
+        margin-top: 8px;
+      }
+
+      .actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 20px;
+      }
+
+      /* UPDATED: Bigger, centered Next button on Page 1 */
+      .actions.centered {
+        justify-content: center; /* center horizontally */
+      }
+      #next1 {
+        border: none;
+        background: var(--primary);
+        color: white;
+        /* Bigger size */
+        padding: 16px 28px;
+        border-radius: 12px;
+        font-size: 1.05rem;
+        cursor: pointer;
+        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+        transition: transform 0.02s ease-in-out, background 0.2s ease;
+        min-width: 200px; /* makes it look substantial */
+      }
+      #next1:hover:not(:disabled) {
+        background: var(--primary-600);
+        transform: translateY(-1px);
+      }
+      #next1:disabled {
+        background: #9aa7c2;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+
+      .checkbox-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-top: 14px;
+      }
+      input[type="checkbox"] {
+        margin-top: 3px;
+        transform: scale(1.2);
+        accent-color: var(--primary);
+      }
+
+      /* NEW: Consent text in yellow for readability */
+      .consent-text {
+        color: var(--consent-yellow);
+      }
+
+      .notice {
+        background: rgba(37, 99, 235, 0.08);
+        border: 1px solid rgba(37, 99, 235, 0.25);
+        padding: 12px 14px;
+        border-radius: 10px;
+        color: var(--fg);
+      }
+      .banner {
+        background: linear-gradient(
+          135deg,
+          rgba(37, 99, 235, 0.15),
+          rgba(5, 150, 105, 0.1)
+        );
+        border: 1px solid var(--border);
+        padding: 20px;
+        border-radius: 16px;
+        text-align: center;
+        margin-top: 18px;
+      }
+      .pill {
+        display: inline-block;
+        font-size: 0.85rem;
+        padding: 4px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.03);
+        color: var(--muted);
+      }
+      .timer {
+        font-variant-numeric: tabular-nums;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--primary);
+      }
+      iframe {
+        width: 100%;
+        height: 70vh;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: #fff;
+      }
+      .center {
+        text-align: center;
+      }
+      .hidden {
+        display: none !important;
+      }
+      .footer {
+        margin-top: 22px;
+        color: var(--muted);
+        font-size: 0.9rem;
+        text-align: center;
+      }
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      @media (max-width: 820px) {
+        .grid-2 {
+          grid-template-columns: 1fr;
+        }
+      }
+      .dialog {
+        position: fixed;
+        inset: 0;
+        display: none;
+        place-items: center;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 50;
+      }
+      .dialog .dialog-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        box-shadow: var(--shadow);
+        padding: 20px;
+        max-width: 520px;
+        margin: 12px;
+        text-align: center;
+      }
+      .tag {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 8px;
+        background: rgba(5, 150, 105, 0.12);
+        color: var(--success);
+        font-size: 0.85rem;
+        border: 1px solid rgba(5, 150, 105, 0.4);
+        margin-left: 6px;
+        vertical-align: middle;
+      }
+      .warning {
+        background: rgba(245, 158, 11, 0.12);
+        color: var(--warning);
+        border: 1px solid rgba(245, 158, 11, 0.4);
+        padding: 8px 10px;
+        border-radius: 8px;
+        display: inline-block;
+        margin-top: 10px;
+      }
+      nav.steps {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 8px;
+        flex-wrap: wrap;
+      }
+      .step {
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        background: rgba(0, 0, 0, 0.03);
+        font-size: 0.85rem;
+      }
+      .step.active {
+        color: var(--fg);
+        border-color: var(--primary);
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+      }
+      .kbd {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+        font-size: 0.9rem;
+        background: rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border);
+        padding: 0 6px;
+        border-radius: 6px;
+      }
+      a {
+        color: var(--primary-600);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Sustainable Consumer Behavior Study</h1>
+        <h2 class="muted">Participant Task and Survey</h2>
+        <nav class="steps" aria-label="Progress">
+          <span class="step active" id="step1">1. Instructions & Consent</span>
+          <span class="step" id="step2">2. Chatbot Interaction</span>
+          <span class="step" id="step3">3. Questionnaire</span>
+        </nav>
+      </header>
+
+      <!-- Page 1: Instructions + Consent -->
+      <section id="page1" class="card" role="region" aria-labelledby="p1-title">
+        <h3 id="p1-title">
+          Participant Task Description (Survey Instructions)
+        </h3>
+        <p>Welcome to the Sustainable Consumer Behavior App.</p>
+        <p>
+          In the following, we have the possibility to interact with a chatbot
+          that is designed to inform you about sustainable consumption. You can
+          enter any question about sustainable consumption and the chatbot will
+          respond to you and give you explanations and practical guidance.
+        </p>
+        <h4>Your task</h4>
+        <p>
+          Please ask questions and engage in a conversation with the chatbot
+          about how everyday consumer choices affect the environment — and what
+          individuals can do to consume more sustainably.
+        </p>
+        <p>You may ask anything related to:</p>
+        <ul>
+          <li>
+            Choosing environmentally friendly products (e.g., food, clothing,
+            packaging)
+          </li>
+          <li>Reducing waste, energy, or emissions in daily life</li>
+          <li>The environmental impact of specific habits or products</li>
+          <li>Tips or guidance on adopting sustainable behaviors</li>
+        </ul>
+        <p>You will be provided with a chat window, and you may type freely.</p>
+        <h4>Minimum interaction requirement</h4>
+        <ul>
+          <li>Ask at least three questions,</li>
+          <li>and continue the dialogue for at least 3 minutes</li>
+          <li>You may continue longer if you wish.</li>
+        </ul>
+
+        <div class="card" style="margin-top: 18px">
+          <h3>Consent to Participate</h3>
+
+          <!-- UPDATED: Consent text wrapped with .consent-text -->
+          <div class="consent-text">
+            <p>
+              Although the study will not benefit you directly, we hope the
+              information we learn will help improve the design of idea
+              evaluation platforms for improved idea selection in the future.
+            </p>
+            <p>
+              The risks associated with participating in this study are no
+              greater than those encountered in daily life. There is a potential
+              risk of loss of confidentiality. Please do not include any
+              sensitive or identifying information in the open question fields.
+            </p>
+            <p>
+              We will collect data from you, including responses to the survey
+              questions and your evaluation choices. We do not collect sensitive
+              data. This data will be used to conduct statistical analyses and
+              to publish the research findings in academic journals.
+            </p>
+            <p>
+              For your time and effort, you will be compensated. Participants
+              who fail the attention check may be disqualified without
+              compensation.
+            </p>
+            <p>
+              If you have any questions, concerns, or feedback related to this
+              study, please contact us.
+            </p>
+          </div>
+
+          <div class="checkbox-row">
+            <input type="checkbox" id="consent" />
+            <label for="consent"
+              >I have read and understood the information above, and I
+              voluntarily consent to participate in this research study.</label
+            >
+          </div>
+
+          <!-- UPDATED: center the Next button and make it bigger via CSS above -->
+          <div class="actions centered">
+            <button id="next1" disabled>Next</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Page 2: Splash -> Chatbot iframe + timer -->
+      <section
+        id="page2"
+        class="card hidden"
+        role="region"
+        aria-labelledby="p2-title"
+      >
+        <h3 id="p2-title">Chatbot Interaction</h3>
+
+        <div id="splash" class="banner">
+          <p class="pill">Please wait</p>
+          <h3 style="margin-top: 8px">
+            You will be redirected to one of our chatbots at random
+          </h3>
+          <p class="muted">
+            Either “CoT (reasoning) chatbot” or “Based (no reasoning) chatbot”.
+          </p>
+          <p class="muted">
+            Starting in <span id="splashCountdown" class="kbd">5</span> seconds…
+          </p>
+        </div>
+
+        <div id="chatArea" class="hidden">
+          <div class="grid-2">
+            <div>
+              <div class="notice">
+                <strong>Assignment:</strong>
+                <span id="assignedLabel">—</span>
+                <span id="assignedTag" class="tag hidden">Recorded</span>
+              </div>
+            </div>
+            <div class="center">
+              <span class="muted">Interaction timer</span><br />
+              <span class="timer" id="timer">00:00</span>
+            </div>
+          </div>
+
+          <div style="margin-top: 14px">
+            <iframe id="chatbotFrame" title="Chatbot"></iframe>
+          </div>
+
+          <div class="footer">
+            Please ask at least three questions and continue for at least 3
+            minutes. At 5 minutes you’ll see a notice; at 6 minutes you will be
+            redirected to the questionnaire automatically.
+          </div>
+        </div>
+      </section>
+
+      <!-- Page 3: Questionnaire iframe -->
+      <section
+        id="page3"
+        class="card hidden"
+        role="region"
+        aria-labelledby="p3-title"
+      >
+        <h3 id="p3-title">Questionnaire</h3>
+        <p class="muted">
+          “Bot version (Please do not change this value ⛔)” will be
+          auto-filled.
+        </p>
+        <div class="warning">
+          If the form doesn’t load,
+          <a id="formDirectLink" href="#" target="_blank" rel="noopener"
+            >open the questionnaire in a new tab</a
+          >.
+        </div>
+        <div style="margin-top: 12px">
+          <iframe id="formFrame" title="Questionnaire"></iframe>
+        </div>
+      </section>
+
+      <div class="footer">Thank you for contributing to our research.</div>
+    </div>
+
+    <div
+      id="timeDialog"
+      class="dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="dialogTitle"
+    >
+      <div class="dialog-card">
+        <h3 id="dialogTitle">Your interaction time is almost finished</h3>
+        <p class="muted">
+          You will be directed to the questionnaire in 1 minute. You can
+          continue interacting in the meantime.
+        </p>
+        <div class="actions" style="justify-content: center">
+          <button id="ackDialog">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Configuration
+      const REASONING_LABEL = "CoT";
+      const BASED_LABEL = "Based";
+      const REASONING_URL = "https://www.gradio.app/guides/quickstart";
+      const BASED_URL =
+        "https://huggingface.co/spaces/arad1367/Base-Model-Qwen2.5-3B";
+      const GOOGLE_FORM_BASE =
+        "https://docs.google.com/forms/d/e/1FAIpQLSf1yQafLACRb29ziTzhq17QQgSo8wlKvrcn9f3c65TmZPCXOw/viewform";
+      const GOOGLE_FORM_ENTRY_KEY = "entry.1755206288";
+
+      const SPLASH_SECONDS = 5;
+
+      // TIMER THRESHOLDS (CHANGE THESE FOR TESTING)
+      // Default: 5 minutes (notice) and 6 minutes (redirect)
+      const NOTICE_AT_SECONDS = 1 * 60; // show popup at 05:00
+      const REDIRECT_AT_SECONDS = 2 * 60; // auto-redirect at 06:00
+
+      // Elements
+      const page1 = document.getElementById("page1");
+      const page2 = document.getElementById("page2");
+      const page3 = document.getElementById("page3");
+      const step1 = document.getElementById("step1");
+      const step2 = document.getElementById("step2");
+      const step3 = document.getElementById("step3");
+
+      const consentCb = document.getElementById("consent");
+      const next1Btn = document.getElementById("next1");
+
+      const splash = document.getElementById("splash");
+      const splashCountdown = document.getElementById("splashCountdown");
+      const chatArea = document.getElementById("chatArea");
+      const assignedLabel = document.getElementById("assignedLabel");
+      const assignedTag = document.getElementById("assignedTag");
+      const chatbotFrame = document.getElementById("chatbotFrame");
+      const timerEl = document.getElementById("timer");
+
+      const formFrame = document.getElementById("formFrame");
+      const formDirectLink = document.getElementById("formDirectLink");
+
+      const dialog = document.getElementById("timeDialog");
+      const ackDialog = document.getElementById("ackDialog");
+
+      // State keys
+      const LS_CONSENT = "scb_consent";
+      const LS_ASSIGNED = "scb_assigned";
+      const LS_STARTED_AT = "scb_started_at";
+
+      function setStep(activeIndex) {
+        [step1, step2, step3].forEach((el, idx) => {
+          if (idx === activeIndex) el.classList.add("active");
+          else el.classList.remove("active");
+        });
+      }
+      function show(section) {
+        [page1, page2, page3].forEach((s) => s.classList.add("hidden"));
+        section.classList.remove("hidden");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function restoreConsent() {
+        const saved = localStorage.getItem(LS_CONSENT);
+        if (saved === "true") {
+          consentCb.checked = true;
+          next1Btn.disabled = false;
+        }
+      }
+      consentCb.addEventListener("change", () => {
+        const ok = consentCb.checked;
+        next1Btn.disabled = !ok;
+        localStorage.setItem(LS_CONSENT, ok ? "true" : "false");
+      });
+      next1Btn.addEventListener("click", () => {
+        goToPage2();
+      });
+
+      function assignBotIfNeeded() {
+        let assigned = localStorage.getItem(LS_ASSIGNED);
+        if (!assigned) {
+          assigned = Math.random() < 0.5 ? REASONING_LABEL : BASED_LABEL;
+          localStorage.setItem(LS_ASSIGNED, assigned);
+        }
+        return assigned;
+      }
+
+      function buildPrefilledFormUrl(botLabel) {
+        const params = new URLSearchParams();
+        params.set("usp", "pp_url");
+        params.set(GOOGLE_FORM_ENTRY_KEY, botLabel);
+        return GOOGLE_FORM_BASE + "?" + params.toString();
+      }
+
+      let tickInterval = null;
+      let noticeShown = false;
+      let redirectScheduled = false;
+
+      function startTimerIfNeeded() {
+        if (tickInterval) return;
+        let startedAt = parseInt(
+          localStorage.getItem(LS_STARTED_AT) || "0",
+          10
+        );
+        if (!startedAt) {
+          startedAt = Date.now();
+          localStorage.setItem(LS_STARTED_AT, String(startedAt));
+        }
+        updateTimer();
+        tickInterval = setInterval(updateTimer, 1000);
+      }
+
+      function updateTimer() {
+        const startedAt = parseInt(
+          localStorage.getItem(LS_STARTED_AT) || "0",
+          10
+        );
+        if (!startedAt) return;
+        const elapsedSec = Math.floor((Date.now() - startedAt) / 1000);
+        timerEl.textContent = formatMMSS(elapsedSec);
+
+        if (elapsedSec >= NOTICE_AT_SECONDS && !noticeShown) {
+          noticeShown = true;
+          showDialog();
+          if (!redirectScheduled) {
+            redirectScheduled = true;
+            const remaining = Math.max(REDIRECT_AT_SECONDS - elapsedSec, 0);
+            setTimeout(() => goToPage3(), remaining * 1000);
+          }
+        }
+        if (elapsedSec >= REDIRECT_AT_SECONDS && !redirectScheduled) {
+          redirectScheduled = true;
+          goToPage3();
+        }
+      }
+
+      function formatMMSS(s) {
+        const m = Math.floor(s / 60);
+        const sec = s % 60;
+        return String(m).padStart(2, "0") + ":" + String(sec).padStart(2, "0");
+      }
+
+      function showDialog() {
+        dialog.style.display = "grid";
+      }
+      function hideDialog() {
+        dialog.style.display = "none";
+      }
+      ackDialog.addEventListener("click", hideDialog);
+
+      function goToPage2() {
+        setStep(1);
+        show(page2);
+        splash.classList.remove("hidden");
+        chatArea.classList.add("hidden");
+        let remaining = SPLASH_SECONDS;
+        splashCountdown.textContent = remaining;
+        const t = setInterval(() => {
+          remaining -= 1;
+          splashCountdown.textContent = remaining;
+          if (remaining <= 0) {
+            clearInterval(t);
+            loadChatbot();
+          }
+        }, 1000);
+      }
+
+      function loadChatbot() {
+        const assigned = assignBotIfNeeded();
+        assignedLabel.textContent =
+          assigned === REASONING_LABEL
+            ? "CoT (reasoning) chatbot"
+            : "Based (no reasoning) chatbot";
+        assignedTag.classList.remove("hidden");
+
+        const url = assigned === REASONING_LABEL ? REASONING_URL : BASED_URL;
+        chatbotFrame.src = url;
+
+        splash.classList.add("hidden");
+        chatArea.classList.remove("hidden");
+        startTimerIfNeeded();
+      }
+
+      function goToPage3() {
+        const assigned = localStorage.getItem(LS_ASSIGNED) || REASONING_LABEL;
+        const formUrl = buildPrefilledFormUrl(assigned);
+        formFrame.src = formUrl;
+        formDirectLink.href = formUrl;
+
+        setStep(2);
+        show(page3);
+      }
+
+      (function init() {
+        restoreConsent();
+
+        const consentGiven = localStorage.getItem(LS_CONSENT) === "true";
+        if (!consentGiven) {
+          setStep(0);
+          show(page1);
+          return;
+        }
+        const assigned = localStorage.getItem(LS_ASSIGNED);
+        const startedAt = localStorage.getItem(LS_STARTED_AT);
+
+        if (assigned && startedAt) {
+          setStep(1);
+          show(page2);
+          splash.classList.add("hidden");
+          chatArea.classList.remove("hidden");
+          assignedLabel.textContent =
+            assigned === REASONING_LABEL
+              ? "CoT (reasoning) chatbot"
+              : "Based (no reasoning) chatbot";
+          assignedTag.classList.remove("hidden");
+          chatbotFrame.src =
+            assigned === REASONING_LABEL ? REASONING_URL : BASED_URL;
+          startTimerIfNeeded();
+        } else {
+          goToPage2();
+        }
+      })();
+    </script>
+  </body>
+</html>
