@@ -24,8 +24,8 @@ Built as a single HTML file, deployable on GitHub Pages.
 - Explicit consent gate (Next button enabled only after consent)
 - 5-second splash screen before chatbot assignment
 - True 50-50 random assignment to:
-  - CoT (reasoning) chatbot: https://www.gradio.app/guides/quickstart
-  - Based (no reasoning) chatbot: https://huggingface.co/spaces/arad1367/Base-Model-Qwen2.5-3B
+  - CoT (reasoning) chatbot
+  - Based (no reasoning) chatbot
 - Visible session timer (MM:SS)
   - Popup at 05:00: “Your interaction time is almost finished”
   - Auto-redirect to questionnaire at 06:00
@@ -52,28 +52,7 @@ No external build tools or dependencies required.
   - Settings → Pages → Source: main branch (/root)
   - Wait for Pages to publish, then access:
     - https://arad1367.github.io/Cot_CB_ReasonMarket/
-
-### Configuration
-
-You can customize key parameters at the top of the script block in index.html.
-
-- Chatbot labels and URLs:
-
-```js
-const REASONING_LABEL = "CoT";
-const BASED_LABEL = "Based";
-const REASONING_URL = "https://www.gradio.app/guides/quickstart";
-const BASED_URL =
-  "https://huggingface.co/spaces/arad1367/Base-Model-Qwen2.5-3B";
-```
-
-- Google Form prefill (entry key maps to the “Bot version” short-answer question):
-
-```js
-const GOOGLE_FORM_BASE =
-  "https://docs.google.com/forms/d/e/1FAIpQLSf1yQafLACRb29ziTzhq17QQgSo8wlKvrcn9f3c65TmZPCXOw/viewform";
-const GOOGLE_FORM_ENTRY_KEY = "entry.1755206288";
-```
+      
 
 - Timers:
 
