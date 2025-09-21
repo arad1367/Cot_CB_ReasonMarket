@@ -326,8 +326,22 @@
     </div>
 
     <script>
-      // Configuration (single chatbot only)
-      const CHATBOT_URL = "https://bc533d4501e29a058d.gradio.live/"; // Set your single chatbot URL here
+      // Configuration: two chatbot endpoints and silent random assignment
+      const CHATBOT_OPTIONS = [
+        "https://bc533d4501e29a058d.gradio.live/",
+        "https://bc676d4501e29a148d.gradio.live/"
+      ];
+      const LS_ASSIGNED_BOT = "scb_assigned_bot";
+
+      function getAssignedChatbotUrl() {
+        const existing = localStorage.getItem(LS_ASSIGNED_BOT);
+        if (existing) return existing;
+
+        // 50/50 random split
+        const assigned = CHATBOT_OPTIONS[Math.random() < 0.5 ? 0 : 1];
+        localStorage.setItem(LS_ASSIGNED_BOT, assigned);
+        return assigned;
+      }
 
       const GOOGLE_FORM_URL =
         "https://docs.google.com/forms/d/e/1FAIpQLSf1yQafLACRb29ziTzhq17QQgSo8wlKvrcn9f3c65TmZPCXOw/viewform";
@@ -461,6 +475,7 @@
       }
 
       function loadChatbot() {
+        const CHATBOT_URL = getAssignedChatbotUrl();
         chatbotFrame.src = CHATBOT_URL;
         splash.classList.add("hidden");
         chatArea.classList.remove("hidden");
@@ -485,6 +500,8 @@
       (function init() {
         localStorage.removeItem(LS_CONSENT);
         localStorage.removeItem(LS_STARTED_AT);
+        // IMPORTANT: Do not clear LS_ASSIGNED_BOT so the same user keeps the same chatbot
+        // localStorage.removeItem(LS_ASSIGNED_BOT); // leave untouched
 
         noticeShown = false;
         redirectScheduled = false;
@@ -502,4 +519,3 @@
     </script>
   </body>
 </html>
-
