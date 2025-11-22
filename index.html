@@ -294,8 +294,8 @@
 
           <div class="footer">
             Please ask at least three questions and continue for at least 3 minutes.
-            At 5 minutes you’ll see a notice; at 6 minutes you will be redirected
-            to the questionnaire automatically.
+            The "Next" button will be enabled after 3 minutes. At 5 minutes you'll see a notice; 
+            at 6 minutes you will be redirected to the questionnaire automatically.
           </div>
         </div>
       </section>
@@ -328,8 +328,8 @@
     <script>
       // Configuration: two chatbot endpoints and silent random assignment
       const CHATBOT_OPTIONS = [
-        "https://14221c9d26d4f28e12.gradio.live/",
-        "https://14221c9d26d4f28e12.gradio.live/"
+        "https://14221c0d26d4f28e78.gradio.live",  // First chatbot URL
+        "https://14221c9d26d4f28e12.gradio.live"   // Second chatbot URL 
       ];
       const LS_ASSIGNED_BOT = "scb_assigned_bot";
 
@@ -476,7 +476,15 @@
 
       function loadChatbot() {
         const CHATBOT_URL = getAssignedChatbotUrl();
-        chatbotFrame.src = CHATBOT_URL;
+        // Add ?__theme=light for better Gradio embedding
+        chatbotFrame.src = CHATBOT_URL + "?__theme=light";
+        
+        // Add error handling for iframe loading
+        chatbotFrame.onerror = function() {
+          console.error("Failed to load chatbot iframe");
+          alert("Unable to load chatbot. Please check the Gradio URL and ensure it allows iframe embedding.");
+        };
+        
         splash.classList.add("hidden");
         chatArea.classList.remove("hidden");
         startTimerIfNeeded();
@@ -519,7 +527,3 @@
     </script>
   </body>
 </html>
-
-
-
-
